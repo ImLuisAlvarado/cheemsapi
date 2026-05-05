@@ -1,45 +1,37 @@
-from persistence.db import get_conecction
+from persistence.db import get_connection
+from mysql.connector import Error
 
 class Trip:
 
-    def __init__(self, name: str, 
-                 city:str,
-                 latitude: float,
-                 longitude: float
-                 ):
+    def __init__(self, name, city, latitude, longitude):
         self.name = name
         self.city = city
         self.latitude = latitude
         self.longitude = longitude
 
 
-    def getAll():
+    def get_all():
         try:
-            connection = get_conecction()
+            connection = get_connection()
             cursor = connection.cursor(dictionary = True)
-            cursor.execute("SELECT id, name, city, latitude, longitude FROM trip")
+            cursor.execute('SELECT id, name, city, latitude, longitude FROM trip')
             return cursor.fetchall()
-
-        except Exception as ex:
-            print(ex)
-        
+        except Error as ex:
+            return str(ex)
         finally:
             cursor.close()
             connection.close()
-    
+
     def save(self):
         try:
-            connection = get_conecction()
-            cursor = connection.cursor(dictionary = True)
-            sql= "INSERT INTO trip (name, city, latitude, longitude) VALUES (%s, %s, %s, %s)"
+            connection = get_connection()
+            cursor = connection.cursor()
+            sql = 'INSERT INTO trip  (name, city, latitude, longitude)  VALUES (%s, %s, %s, %s)'
             cursor.execute(sql, (self.name, self.city, self.latitude, self.longitude))
             connection.commit()
-
             return cursor.lastrowid
-
-        except Exception as ex:
-            print(ex)
-        
+        except Error as ex:
+            return str(ex)
         finally:
             cursor.close()
             connection.close()
